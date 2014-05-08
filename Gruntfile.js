@@ -2,7 +2,7 @@
 /*
  * @name grunt-develop
  * @author Edward Hotchkiss <edward@edwardhotchkiss.com>
- * @url http://github.com/edwardhotchkiss/node-develop
+ * @url http://github.com/edwardhotchkiss/grunt-develop
  * @description Grunt Task to run a Node.js Server while developing, auto-reloading on change.
  * @copyright Copyright (c) 2013-2014 Edward Hotchkiss
  * @license MIT
