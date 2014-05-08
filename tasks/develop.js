@@ -52,9 +52,14 @@ module.exports = function(grunt) {
       if (signal === 'SIGKILL') {
         grunt.event.emit('develop.start', filename, nodeArgs, args, env, cmd);
       }
-    })
-    .stdout.on('data', function(buffer) {
-      grunt.log.write('\r\n[grunt-develop] > '.cyan + String(buffer));
+    });
+    child.stderr.on('data', function(buffer) {
+      if (buffer.toString().trim().length) {
+        grunt.log.write('\r\n[grunt-develop] > '.red + buffer.toString());
+      }
+    });
+    child.stdout.on('data', function (buffer) {
+      grunt.log.write('\r\n[grunt-develop] > '.cyan + buffer.toString());
     });
     running = true;
     grunt.log.write('\r\n[grunt-develop] > '.cyan + util.format('started application "%s".', filename));
