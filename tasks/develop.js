@@ -13,7 +13,10 @@ module.exports = function(grunt) {
   var child
     , running = false
     , fs = require('fs')
-    , util = require('util');
+    , util = require('util')
+    , options = {}
+    , cb
+    , done = false;
 
   // kills child process (server)
   grunt.event.on('develop.kill', function() {
@@ -24,8 +27,11 @@ module.exports = function(grunt) {
   // spawned, notify grunt to move onto next task
   grunt.event.on('develop.started', function() {
     setTimeout(function() {
-      global.gruntDevelopDone();
-    }, 250);
+      if (!done) {
+        cb();
+        done = true;
+      }
+    }, options.waitTime);
   });
 
   // starts server
@@ -60,6 +66,11 @@ module.exports = function(grunt) {
     });
     child.stdout.on('data', function (buffer) {
       grunt.log.write('\r\n[grunt-develop] > '.cyan + buffer.toString());
+
+      if (!done && options.waitRegex && options.waitRegex.test(buffer.toString())) {
+        cb();
+        done = true;
+      }
     });
     running = true;
     grunt.log.write('\r\n[grunt-develop] > '.cyan + util.format('started application "%s".', filename));
@@ -73,11 +84,17 @@ module.exports = function(grunt) {
       , args = this.data.args || []
       , env = this.data.env || process.env || {}
       , cmd = this.data.cmd || process.argv[0];
+
+    options = this.options({
+      waitRegex: null,
+      waitTime: 250
+    });
+
     if (!grunt.file.exists(filename)) {
       grunt.fail.warn(util.format('application file "%s" not found!', filename));
       return false;
     }
-    global.gruntDevelopDone = this.async();
+    cb = this.async();
     grunt.event.emit('develop.start', filename, nodeArgs, args, env, cmd);
   });
 

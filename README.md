@@ -1,5 +1,5 @@
 
-# grunt-develop [![Build Status](https://secure.travis-ci.org/edwardhotchkiss/grunt-develop.png)](http://travis-ci.org/edwardhotchkiss/grunt-develop) [![Git Tip](http://img.shields.io/gittip/edwardhotchkiss.svg)](https://www.gittip.com/edwardhotchkiss/) 
+# grunt-develop [![Build Status](https://secure.travis-ci.org/edwardhotchkiss/grunt-develop.png)](http://travis-ci.org/edwardhotchkiss/grunt-develop) [![Git Tip](http://img.shields.io/gittip/edwardhotchkiss.svg)](https://www.gittip.com/edwardhotchkiss/)
 
 > Run a Node.js application for development, with support for auto-reload.
 
@@ -112,6 +112,56 @@ $ grunt
 You may add any other task in the watch, like JS linting, asset compiling,
 etc. and customize the watch to your needs. See
 [grunt-contrib-watch](https://github.com/gruntjs/grunt-contrib-watch).
+
+
+## Using the waitRegex Option
+
+To wait until the server emits a specific string:
+
+```javascript
+module.exports = function(grunt) {
+
+ grunt.initConfig({
+   develop: {
+     server: {
+       file: 'app.js'
+     },
+     options: {
+       waitRegex: /app.js running at http/,
+       waitTime: 5000
+     }
+   }
+ });
+
+ grunt.loadNpmTasks('grunt-develop');
+
+ grunt.registerTask('default', ['develop']);
+
+};
+```
+
+In this example, grunt-develop will wait up to five seconds for the app to start,
+but will complete early if the application reports that it is ready. This can be
+used, for example, to start a node server and make sure it is up and running
+before starting integration tests.
+
+
+## Options
+
+### waitTime
+
+Type: `int`  
+Default: `250`
+
+The amount of time to wait before telling grunt the task is complete.
+
+### waitRegex
+
+Type: `RegExp`  
+Default: `null`
+
+A regular expression to test against process output to trigger telling grunt the
+task is complete.
 
 ## License (MIT)
 
