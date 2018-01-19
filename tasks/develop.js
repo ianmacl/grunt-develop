@@ -29,7 +29,7 @@ module.exports = function(grunt) {
   });
 
   // starts server
-  grunt.event.on('develop.start', function(filename, nodeArgs, args, env, cmd) {
+  grunt.event.on('develop.start', function(filename, nodeArgs, args, env, cmd, prompt) {
     var spawnArgs = nodeArgs.concat([filename], args);
     if (running) {
       return grunt.event.emit('develop.kill');
@@ -55,14 +55,14 @@ module.exports = function(grunt) {
     });
     child.stderr.on('data', function(buffer) {
       if (buffer.toString().trim().length) {
-        grunt.log.write('\r\n[grunt-develop] > '.red + buffer.toString());
+        grunt.log.write('\r\n' + prompt.red + buffer.toString());
       }
     });
     child.stdout.on('data', function (buffer) {
-      grunt.log.write('\r\n[grunt-develop] > '.cyan + buffer.toString());
+      grunt.log.write('\r\n' + prompt.cyan + buffer.toString());
     });
     running = true;
-    grunt.log.write('\r\n[grunt-develop] > '.cyan + util.format('started application "%s".', filename));
+    grunt.log.write('\r\n' + prompt.cyan + util.format('started application "%s".', filename));
     grunt.event.emit('develop.started');
   });
 
@@ -72,13 +72,19 @@ module.exports = function(grunt) {
       , nodeArgs = this.data.nodeArgs || []
       , args = this.data.args || []
       , env = this.data.env || process.env || {}
-      , cmd = this.data.cmd || process.argv[0];
+      , cmd = this.data.cmd || process.argv[0]
+      , prompt = typeof this.data.prompt === 'undefined' ? '[grunt-develop] > ' : this.data.prompt;
+
+    if(prompt === false){
+      prompt = '';
+    }
+    
     if (!grunt.file.exists(filename)) {
       grunt.fail.warn(util.format('application file "%s" not found!', filename));
       return false;
     }
     global.gruntDevelopDone = this.async();
-    grunt.event.emit('develop.start', filename, nodeArgs, args, env, cmd);
+    grunt.event.emit('develop.start', filename, nodeArgs, args, env, cmd, prompt);
   });
 
   process.on('exit', function() {
